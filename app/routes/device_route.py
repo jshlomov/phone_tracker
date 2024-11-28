@@ -23,7 +23,6 @@ def check_direct_connection():
     json = request.json
     return jsonify(device_service.check_direct_connection(json)), 200
 
-
-
-
-
+@device_blueprint.route('/recent-interaction/<device_id>', methods=['GET'])
+def get_most_recent_interaction(device_id):
+    return jsonify(device_service.get_most_recent_interaction(device_id))

@@ -30,45 +30,31 @@ def insert_device(device: Device):
 def find_bluetooth_connected_devices():
     with driver.session() as session:
         query = """
-            MATCH path = (d1:Device)-[:CONNECTED*]->(d2:Device)
+            MATCH (start:Device)
+            MATCH (end:Device)
+            WHERE start <> end
+            MATCH path = shortestPath((start)-[:CONNECTED*]->(end))
             WHERE ALL(r IN relationships(path) WHERE r.method = 'Bluetooth')
             WITH path, length(path) as len
             ORDER BY len DESC
             RETURN path, len
         """
-        results = session.run(query)
-
-        connections = []
-        for record in results:
-            path_nodes = [Device(**node) for node in record["path"].nodes]
-            path_length = record["len"]
-            connections.append({
-                "devices": path_nodes,
-                "path_length": path_length
-            })
-        return connections
+        return session.run(query).data()
 
 
 def find_strong_signal_connections():
     with driver.session() as session:
         query = """
-            MATCH path = (d1:Device)-[:CONNECTED*]->(d2:Device)
+            MATCH (start:Device)
+            MATCH (end:Device)
+            WHERE start <> end
+            MATCH path = shortestPath((start)-[:CONNECTED*]->(end))
             WHERE ALL(r IN relationships(path) WHERE r.signal_strength_dbm > -60)
             WITH path, length(path) as len
             ORDER BY len DESC
             RETURN path, len
         """
-        results = session.run(query)
-
-        connections = []
-        for record in results:
-            path_nodes = [Device(**node) for node in record["path"].nodes]
-            path_length = record["len"]
-            connections.append({
-                "devices": path_nodes,
-                "path_length": path_length
-            })
-        return connections
+        return session.run(query).data()
 
 def count_connected_devices(device_id):
     with driver.session() as session:
@@ -97,14 +83,19 @@ def check_direct_connection(device_1_id, device_2_id):
 
         return result["connection_exists"] > 0
 
-print(find_bluetooth_connected_devices())
+def get_most_recent_interaction(device_id):
+    try:
+        with driver.session() as session:
+            query = """
+                MATCH (d:Device {id: $device_id})-[rel:CONNECTED]->(d2:Device)
+                RETURN d, rel, d2
+                ORDER BY rel.timestamp DESC
+                LIMIT 1
+            """
+            params = {"device_id": device_id}
+            result = session.run(query, params).data()
+            return result
+    except Exception as e:
+        raise RuntimeError(f"An error occurred {str(e)}")
 
-# MATCH (start:Device)
-# MATCH (end:Device)
-# WHERE start <> end
-# MATCH path = shortestPath((start)-[:INTERACTED_WITH*]->(end))
-# WHERE ALL(r IN relationships(path) WHERE r.method = 'Bluetooth')
-# WITH path, length(path) as pathLength
-# ORDER BY pathLength DESC
-# LIMIT 1
-# RETURN path
+print(get_most_recent_interaction("2da5382c-8a3c-436f-8710-3a9df07afde2"))

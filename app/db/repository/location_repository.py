@@ -1,4 +1,3 @@
-from app.db.database import driver
 from app.db.models.location import Location
 
 

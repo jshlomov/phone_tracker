@@ -1,5 +1,3 @@
-from datetime import datetime
-from app.db.database import driver
 from app.db.models.interaction import Interaction
 
 

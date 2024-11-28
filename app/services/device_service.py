@@ -1,7 +1,6 @@
 import app.db.repository.device_repository as device_rep
 
 
-
 def find_bluetooth_connected_devices():
     return device_rep.find_bluetooth_connected_devices()
 

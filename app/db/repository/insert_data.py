@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from app.db.database import driver
 from app.db.models.device import Device
 from app.db.models.location import Location

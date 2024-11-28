@@ -1,7 +1,3 @@
-from functools import partial
-
-from toolz import pipe
-
 from app.db.database import driver
 from app.db.models.device import Device
 

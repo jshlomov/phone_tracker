@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from app.db.models.device import Device
 from app.db.models.interaction import Interaction
 from app.db.models.location import Location

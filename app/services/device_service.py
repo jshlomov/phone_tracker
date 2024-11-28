@@ -11,3 +11,9 @@ def count_connected_devices(device_id):
         return device_rep.count_connected_devices(device_id)
     except Exception as e:
         return str(e)
+
+def check_direct_connection(json):
+    device_1_id = json['device_1_id']
+    device_2_id = json['device_2_id']
+    return device_rep.check_direct_connection(device_1_id, device_2_id)
+

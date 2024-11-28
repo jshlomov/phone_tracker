@@ -50,17 +50,21 @@ def find_bluetooth_connected_devices():
 def find_strong_signal_connections():
     with driver.session() as session:
         query = """
-            MATCH (d1:Device)-[c:CONNECTED]->(d2:Device)
-            WHERE c.signal_strength_dbm > -60
-            RETURN d1, d2
+            MATCH path = (d1:Device)-[:INTERACTED_WITH*]->(d2:Device)
+            WHERE ALL(r IN relationships(path) WHERE r.signal_strength_dbm > -60)
+            RETURN path, length(path) AS path_length
         """
-        results = session.run(query).data()
+        results = session.run(query)
 
-        return pipe(
-            results,
-            partial(map, lambda x: {"devices" : [Device(**x["d1"]), Device(**x["d2"])]}),
-            list
-        )
+        connections = []
+        for record in results:
+            path_nodes = [node["id"] for node in record["path"].nodes]
+            path_length = record["path_length"]
+            connections.append({
+                "devices": path_nodes,
+                "path_length": path_length
+            })
+        return connections
 
 def count_connected_devices(device_id):
     with driver.session() as session:
@@ -74,3 +78,19 @@ def count_connected_devices(device_id):
             return result["connected_count"]
         else:
             raise Exception(f"No device found with ID {device_id}")
+
+def check_direct_connection(device_1_id, device_2_id):
+    with driver.session() as session:
+        query = """
+            MATCH (d1:Device {id: $device_1_id})-[:CONNECTED]->(d2:Device {id: $device_2_id})
+            RETURN COUNT(d1) AS connection_exists
+        """
+        params = {
+            "device_1_id": device_1_id,
+            "device_2_id": device_2_id
+        }
+        result = session.run(query, params).single()
+
+        return result["connection_exists"] > 0
+
+print()

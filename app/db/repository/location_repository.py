@@ -3,7 +3,6 @@ from app.db.models.location import Location
 
 
 def insert_location(device_id: str, location: Location):
-    with driver.session() as session:
         query = """
             MATCH (d:Device {id: $device_id})
             MERGE (l:Location {
@@ -22,5 +21,4 @@ def insert_location(device_id: str, location: Location):
             "altitude_meters": location.altitude_meters,
             "accuracy_meters": location.accuracy_meters,
         }
-        res = session.run(query, params)
-        return res.single()
+        return query, params

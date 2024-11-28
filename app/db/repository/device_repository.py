@@ -6,6 +6,7 @@ def insert_device(device: Device):
     query = """
         MERGE (d:Device {
             id: $id,
+            name: $name,
             brand: $brand,
             model: $model,
             os: $os
@@ -15,6 +16,7 @@ def insert_device(device: Device):
     """
     params = {
         "id": device.id,
+        "name": device.name,
         "brand": device.brand,
         "model": device.model,
         "os": device.os

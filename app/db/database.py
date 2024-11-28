@@ -1,5 +1,9 @@
 import os
+
+from dotenv import load_dotenv
 from neo4j import GraphDatabase
+
+load_dotenv(verbose=True)
 
 
 driver = GraphDatabase.driver(

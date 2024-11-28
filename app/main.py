@@ -1,9 +1,9 @@
 from flask import Flask
 
-from app.routes.phone_route import phone_blueprint
+from app.routes.device_route import device_blueprint
 
 app = Flask(__name__)
 
 if __name__ == '__main__':
-    app.register_blueprint(phone_blueprint)
+    app.register_blueprint(device_blueprint, url_prefix="/api/device")
     app.run()
